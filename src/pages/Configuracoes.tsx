@@ -14,10 +14,6 @@ import { useEffect } from 'react';
 
 const Configuracoes = () => {
   const navigate = useNavigate();
-  const [formato, setFormato] = useState('reels');
-  const [larguraCustom, setLarguraCustom] = useState('1080');
-  const [alturaCustom, setAlturaCustom] = useState('1920');
-  const [qualidade, setQualidade] = useState('1080p');
   const [altoContraste, setAltoContraste] = useState(false);
   const [fonteAumentada, setFonteAumentada] = useState(false);
   const [legendasIA, setLegendasIA] = useState(false);
@@ -31,10 +27,6 @@ const Configuracoes = () => {
     const configSalvas = localStorage.getItem('globoconverteConfig');
     if (configSalvas) {
       const config = JSON.parse(configSalvas);
-      setFormato(config.formato || 'reels');
-      setLarguraCustom(config.larguraCustom || '1080');
-      setAlturaCustom(config.alturaCustom || '1920');
-      setQualidade(config.qualidade || '1080p');
       setAltoContraste(config.altoContraste || false);
       setFonteAumentada(config.fonteAumentada || false);
       setLegendasIA(config.legendasIA || false);
@@ -43,10 +35,6 @@ const Configuracoes = () => {
 
   const handleSalvar = () => {
     const config = {
-      formato,
-      larguraCustom,
-      alturaCustom,
-      qualidade,
       altoContraste,
       fonteAumentada,
       legendasIA,
@@ -75,77 +63,6 @@ const Configuracoes = () => {
           </div>
 
           <div className="space-y-6">
-            {/* Formato do Vídeo */}
-            <Card className="p-6 shadow-card animate-fade-in">
-              <h2 className="text-xl font-semibold text-foreground mb-4">
-                Formato do Vídeo
-              </h2>
-              
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="formato">Selecione o formato</Label>
-                  <Select value={formato} onValueChange={setFormato}>
-                    <SelectTrigger id="formato" className="mt-2">
-                      <SelectValue placeholder="Escolha o formato" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="reels">Instagram Reels (1080x1920)</SelectItem>
-                      <SelectItem value="tiktok">TikTok (1080x1920)</SelectItem>
-                      <SelectItem value="shorts">YouTube Shorts (1080x1920)</SelectItem>
-                      <SelectItem value="custom">Tamanho Customizado</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {formato === 'custom' && (
-                  <div className="grid grid-cols-2 gap-4 animate-fade-in">
-                    <div>
-                      <Label htmlFor="largura">Largura (px)</Label>
-                      <Input
-                        id="largura"
-                        type="number"
-                        value={larguraCustom}
-                        onChange={(e) => setLarguraCustom(e.target.value)}
-                        className="mt-2"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="altura">Altura (px)</Label>
-                      <Input
-                        id="altura"
-                        type="number"
-                        value={alturaCustom}
-                        onChange={(e) => setAlturaCustom(e.target.value)}
-                        className="mt-2"
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            </Card>
-
-            {/* Qualidade */}
-            <Card className="p-6 shadow-card animate-fade-in">
-              <h2 className="text-xl font-semibold text-foreground mb-4">
-                Qualidade do Vídeo
-              </h2>
-              
-              <div>
-                <Label htmlFor="qualidade">Resolução de saída</Label>
-                <Select value={qualidade} onValueChange={setQualidade}>
-                  <SelectTrigger id="qualidade" className="mt-2">
-                    <SelectValue placeholder="Escolha a qualidade" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="720p">HD - 720p</SelectItem>
-                    <SelectItem value="1080p">Full HD - 1080p</SelectItem>
-                    <SelectItem value="1440p">2K - 1440p</SelectItem>
-                    <SelectItem value="2160p">4K - 2160p</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </Card>
-
             {/* Acessibilidade */}
             <Card className="p-6 shadow-card animate-fade-in">
               <h2 className="text-xl font-semibold text-foreground mb-4">
