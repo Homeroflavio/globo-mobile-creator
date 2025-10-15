@@ -29,6 +29,9 @@ export const processVideo = async (file: File): Promise<ProcessVideoResponse> =>
     const response = await api.post<ProcessVideoResponse>('/process-video', formData);
     return response.data;
   } catch (error) {
+    if (axios.isAxiosError(error) && error.code === 'ERR_NETWORK') {
+      throw new Error('Não foi possível conectar ao servidor. Certifique-se de que o backend está rodando em http://localhost:5000');
+    }
     console.error('Erro ao processar vídeo:', error);
     throw new Error('Falha ao processar vídeo. Tente novamente.');
   }
@@ -41,8 +44,8 @@ export const processVideo = async (file: File): Promise<ProcessVideoResponse> =>
  * @returns true se autenticado com sucesso
  */
 export const login = (email: string, password: string): boolean => {
-  // Mock simples: admin@teste.com / 123456
-  if (email === 'admin@teste.com' && password === '123456') {
+  // Mock simples: admin@globo.com / 123456
+  if (email === 'admin@globo.com' && password === '123456') {
     localStorage.setItem('isAuthenticated', 'true');
     return true;
   }

@@ -109,7 +109,7 @@ const Login = () => {
         <div className="mt-6 p-4 bg-muted rounded-lg">
           <p className="text-xs text-muted-foreground text-center">
             <strong>Credenciais de teste:</strong><br />
-            Email: admin@teste.com<br />
+            Email: admin@globo.com<br />
             Senha: 123456
           </p>
         </div>

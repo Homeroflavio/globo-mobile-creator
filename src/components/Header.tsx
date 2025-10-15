@@ -1,15 +1,18 @@
-import { LogOut } from 'lucide-react';
+import { LogOut, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { logout } from '@/services/api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const Header = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
+
+  const isConfigPage = location.pathname === '/configuracoes';
 
   return (
     <header className="border-b border-border bg-card shadow-sm">
@@ -30,10 +33,23 @@ const Header = () => {
               />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-            GloboConverte
-          </h1>
-        </div>
+        <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+          GloboConverte
+        </h1>
+      </div>
+      
+      <div className="flex items-center gap-3">
+        {!isConfigPage && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate('/configuracoes')}
+            className="gap-2"
+          >
+            <Settings className="w-4 h-4" />
+            Configurações
+          </Button>
+        )}
         
         <Button
           variant="outline"
@@ -44,6 +60,7 @@ const Header = () => {
           <LogOut className="w-4 h-4" />
           Sair
         </Button>
+      </div>
       </div>
     </header>
   );
