@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'http://localhost:3001';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -19,18 +19,19 @@ export interface ProcessVideoResponse {
 /**
  * Envia um vídeo para processamento
  * @param file - Arquivo de vídeo (.mp4, .mov, .avi)
+ * @param userId - ID do usuário
  * @returns Dados do vídeo processado
  */
-export const processVideo = async (file: File): Promise<ProcessVideoResponse> => {
+export const processVideo = async (file: File, userId: string): Promise<ProcessVideoResponse> => {
   const formData = new FormData();
   formData.append('video', file);
 
   try {
-    const response = await api.post<ProcessVideoResponse>('/process-video', formData);
+    const response = await api.post<ProcessVideoResponse>(`/videos/processar/${userId}`, formData);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.code === 'ERR_NETWORK') {
-      throw new Error('Não foi possível conectar ao servidor. Certifique-se de que o backend está rodando em http://localhost:5000');
+      throw new Error('Não foi possível conectar ao servidor. Certifique-se de que o backend está rodando em http://localhost:3001');
     }
     console.error('Erro ao processar vídeo:', error);
     throw new Error('Falha ao processar vídeo. Tente novamente.');
@@ -38,16 +39,41 @@ export const processVideo = async (file: File): Promise<ProcessVideoResponse> =>
 };
 
 /**
- * Mock de autenticação local
+ * Busca lista de usuários e retorna o primeiro ID
+ */
+export const fetchUserId = async (): Promise<string | null> => {
+  try {
+    const response = await api.get('/usuarios');
+    if (response.data && response.data.length > 0) {
+      return response.data[0]._id;
+    }
+    return null;
+  } catch (error) {
+    console.error('Erro ao buscar usuário:', error);
+    throw new Error('Não foi possível conectar ao servidor para obter dados do usuário');
+  }
+};
+
+/**
+ * Mock de autenticação local com integração ao backend
  * @param email - E-mail do usuário
  * @param password - Senha do usuário
  * @returns true se autenticado com sucesso
  */
-export const login = (email: string, password: string): boolean => {
+export const login = async (email: string, password: string): Promise<boolean> => {
   // Mock simples: admin@globo.com / 123456
   if (email === 'admin@globo.com' && password === '123456') {
-    localStorage.setItem('isAuthenticated', 'true');
-    return true;
+    try {
+      const userId = await fetchUserId();
+      if (userId) {
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('globo-user-id', userId);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      throw error;
+    }
   }
   return false;
 };
@@ -56,7 +82,16 @@ export const login = (email: string, password: string): boolean => {
  * Verifica se o usuário está autenticado
  */
 export const isAuthenticated = (): boolean => {
-  return localStorage.getItem('isAuthenticated') === 'true';
+  const isAuth = localStorage.getItem('isAuthenticated') === 'true';
+  const userId = localStorage.getItem('globo-user-id');
+  return isAuth && !!userId;
+};
+
+/**
+ * Retorna o ID do usuário armazenado
+ */
+export const getUserId = (): string | null => {
+  return localStorage.getItem('globo-user-id');
 };
 
 /**
@@ -64,4 +99,21 @@ export const isAuthenticated = (): boolean => {
  */
 export const logout = (): void => {
   localStorage.removeItem('isAuthenticated');
+  localStorage.removeItem('globo-user-id');
+};
+
+/**
+ * Busca lista de vídeos do histórico
+ */
+export const fetchVideos = async (): Promise<any[]> => {
+  try {
+    const response = await api.get('/videos');
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.code === 'ERR_NETWORK') {
+      throw new Error('Não foi possível conectar ao servidor. Certifique-se de que o backend está rodando em http://localhost:3001');
+    }
+    console.error('Erro ao buscar vídeos:', error);
+    throw new Error('Falha ao buscar histórico de vídeos');
+  }
 };

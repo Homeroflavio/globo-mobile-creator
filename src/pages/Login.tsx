@@ -18,15 +18,15 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const success = login(email, password);
+      const success = await login(email, password);
       if (success) {
         toast.success('Login realizado com sucesso!');
         navigate('/dashboard');
       } else {
         toast.error('E-mail ou senha inválidos');
       }
-    } catch (error) {
-      toast.error('Erro ao fazer login');
+    } catch (error: any) {
+      toast.error(error.message || 'Erro ao fazer login. Tente novamente.');
     } finally {
       setLoading(false);
     }
