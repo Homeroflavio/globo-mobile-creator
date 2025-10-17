@@ -4,51 +4,54 @@ import Header from '@/components/Header';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { isAuthenticated } from '@/services/api';
-import { Search, Plus, Trash2 } from 'lucide-react';
+import { isAuthenticated, fetchVideos } from '@/services/api';
+import { Search, Plus, Trash2, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
-// Mock data para o histórico
-const mockHistorico = [
-  {
-    id: 1,
-    thumbnail: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400',
-    titulo: 'Reportagem sobre mudanças climáticas no Brasil',
-    data: '15/01/2025',
-  },
-  {
-    id: 2,
-    thumbnail: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=400',
-    titulo: 'Entrevista com especialista em tecnologia',
-    data: '14/01/2025',
-  },
-  {
-    id: 3,
-    thumbnail: 'https://images.unsplash.com/photo-1533073526757-2c8ca1df9f1c?w=400',
-    titulo: 'Cobertura especial das eleições municipais',
-    data: '13/01/2025',
-  },
-  {
-    id: 4,
-    thumbnail: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=400',
-    titulo: 'Matéria sobre inovação no agronegócio',
-    data: '12/01/2025',
-  },
-];
+interface Video {
+  _id: string;
+  titulo: string;
+  descricao?: string;
+  videoUrl?: string;
+  createdAt: string;
+}
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [historico, setHistorico] = useState(mockHistorico);
+  const [historico, setHistorico] = useState<Video[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!isAuthenticated()) {
       navigate('/login');
+      return;
     }
+
+    const loadVideos = async () => {
+      try {
+        setIsLoading(true);
+        const videos = await fetchVideos();
+        setHistorico(videos);
+      } catch (error: any) {
+        toast.error(error.message || 'Erro ao carregar histórico de vídeos');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadVideos();
   }, [navigate]);
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     // Por enquanto apenas visual
     console.log('Excluir vídeo:', id);
+    toast.info('Funcionalidade de exclusão em desenvolvimento');
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR');
   };
 
   const filteredHistorico = historico.filter((item) =>
@@ -96,27 +99,36 @@ const Dashboard = () => {
 
           {/* Lista de Vídeos */}
           <div className="space-y-4">
-            {filteredHistorico.length === 0 ? (
+            {isLoading ? (
+              <Card className="p-8 flex justify-center items-center shadow-card animate-fade-in">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              </Card>
+            ) : filteredHistorico.length === 0 ? (
               <Card className="p-8 text-center shadow-card animate-fade-in">
                 <p className="text-muted-foreground">
-                  Nenhum vídeo encontrado
+                  {searchTerm ? 'Nenhum vídeo encontrado' : 'Nenhum vídeo convertido ainda. Comece enviando seu primeiro vídeo!'}
                 </p>
               </Card>
             ) : (
               filteredHistorico.map((item, index) => (
                 <Card
-                  key={item.id}
+                  key={item._id}
                   className="p-4 shadow-card hover-scale animate-fade-in"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   <div className="flex items-center gap-4">
                     {/* Miniatura */}
                     <div className="flex-shrink-0 w-32 h-20 rounded-lg overflow-hidden bg-muted">
-                      <img
-                        src={item.thumbnail}
-                        alt={item.titulo}
-                        className="w-full h-full object-cover"
-                      />
+                      {item.videoUrl ? (
+                        <video
+                          src={item.videoUrl}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-muted">
+                          <span className="text-muted-foreground text-xs">Sem preview</span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Informações */}
@@ -125,7 +137,7 @@ const Dashboard = () => {
                         {item.titulo}
                       </h3>
                       <p className="text-sm text-muted-foreground mt-1">
-                        Convertido em {item.data}
+                        Convertido em {formatDate(item.createdAt)}
                       </p>
                     </div>
 
@@ -133,7 +145,7 @@ const Dashboard = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleDelete(item.id)}
+                      onClick={() => handleDelete(item._id)}
                       className="flex-shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10"
                     >
                       <Trash2 className="w-5 h-5" />

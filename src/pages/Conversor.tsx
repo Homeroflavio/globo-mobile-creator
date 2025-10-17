@@ -5,7 +5,7 @@ import VideoUpload from '@/components/VideoUpload';
 import ProcessingScreen from '@/components/ProcessingScreen';
 import ResultScreen from '@/components/ResultScreen';
 import { Button } from '@/components/ui/button';
-import { processVideo, isAuthenticated } from '@/services/api';
+import { processVideo, isAuthenticated, getUserId } from '@/services/api';
 import { toast } from 'sonner';
 import { Sparkles } from 'lucide-react';
 import { useEffect } from 'react';
@@ -36,6 +36,13 @@ const Dashboard = () => {
       return;
     }
 
+    const userId = getUserId();
+    if (!userId) {
+      toast.error('Sessão expirada. Faça login novamente.');
+      navigate('/login');
+      return;
+    }
+
     setState('processing');
 
     try {
@@ -43,7 +50,7 @@ const Dashboard = () => {
       // Isso dá tempo para o usuário ver as animações
       await new Promise(resolve => setTimeout(resolve, 8000));
       
-      const response = await processVideo(selectedVideo);
+      const response = await processVideo(selectedVideo, userId);
       setResult({
         videoUrl: response.videoUrl,
         title: response.title,
@@ -51,9 +58,9 @@ const Dashboard = () => {
       });
       setState('result');
       toast.success('Vídeo processado com sucesso!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao processar:', error);
-      toast.error('Erro ao processar vídeo. Tente novamente.');
+      toast.error(error.message || 'Erro ao processar vídeo. Tente novamente.');
       setState('upload');
     }
   };
