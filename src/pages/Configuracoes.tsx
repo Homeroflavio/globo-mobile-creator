@@ -16,7 +16,10 @@ const Configuracoes = () => {
   const navigate = useNavigate();
   const [altoContraste, setAltoContraste] = useState(false);
   const [fonteAumentada, setFonteAumentada] = useState(false);
+  const [modoNoturno, setModoNoturno] = useState(false);
+  const [modoDaltonico, setModoDaltonico] = useState(false);
   const [legendasIA, setLegendasIA] = useState(false);
+  const [modoLibras, setModoLibras] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -29,7 +32,10 @@ const Configuracoes = () => {
       const config = JSON.parse(configSalvas);
       setAltoContraste(config.altoContraste || false);
       setFonteAumentada(config.fonteAumentada || false);
+      setModoNoturno(config.modoNoturno || false);
+      setModoDaltonico(config.modoDaltonico || false);
       setLegendasIA(config.legendasIA || false);
+      setModoLibras(config.modoLibras || false);
     }
   }, [navigate]);
 
@@ -37,7 +43,10 @@ const Configuracoes = () => {
     const config = {
       altoContraste,
       fonteAumentada,
+      modoNoturno,
+      modoDaltonico,
       legendasIA,
+      modoLibras,
     };
 
     localStorage.setItem('globoconverteConfig', JSON.stringify(config));
@@ -101,6 +110,38 @@ const Configuracoes = () => {
                     onCheckedChange={setFonteAumentada}
                   />
                 </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="modo-noturno" className="text-base">
+                      Modo Noturno
+                    </Label>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Reduz o brilho da tela e usa cores escuras na interface
+                    </p>
+                  </div>
+                  <Switch
+                    id="modo-noturno"
+                    checked={modoNoturno}
+                    onCheckedChange={setModoNoturno}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="modo-daltonico" className="text-base">
+                      Modo Daltônico
+                    </Label>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Ajusta as cores da interface para facilitar a diferenciação de elementos
+                    </p>
+                  </div>
+                  <Switch
+                    id="modo-daltonico"
+                    checked={modoDaltonico}
+                    onCheckedChange={setModoDaltonico}
+                  />
+                </div>
               </div>
             </Card>
 
@@ -113,21 +154,40 @@ const Configuracoes = () => {
                 </span>
               </h2>
               
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor="legendas-ia" className="text-base">
-                    Gerar Legendas Automáticas
-                  </Label>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Utiliza IA para criar legendas sincronizadas
-                  </p>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="legendas-ia" className="text-base">
+                      Gerar Legendas Automáticas
+                    </Label>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Utiliza IA para criar legendas sincronizadas
+                    </p>
+                  </div>
+                  <Switch
+                    id="legendas-ia"
+                    checked={legendasIA}
+                    onCheckedChange={setLegendasIA}
+                    disabled
+                  />
                 </div>
-                <Switch
-                  id="legendas-ia"
-                  checked={legendasIA}
-                  onCheckedChange={setLegendasIA}
-                  disabled
-                />
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="modo-libras" className="text-base">
+                      Modo Libras
+                    </Label>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Utiliza IA para criar tradução simultânea com libras
+                    </p>
+                  </div>
+                  <Switch
+                    id="modo-libras"
+                    checked={modoLibras}
+                    onCheckedChange={setModoLibras}
+                    disabled
+                  />
+                </div>
               </div>
             </Card>
 

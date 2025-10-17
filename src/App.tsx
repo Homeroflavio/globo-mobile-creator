@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import Conversor from "./pages/Conversor";
 import Configuracoes from "./pages/Configuracoes";
 import NotFound from "./pages/NotFound";
 import { isAuthenticated } from "./services/api";
@@ -29,6 +30,14 @@ const App = () => (
             element={
               <PrivateRoute>
                 <Dashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/conversor"
+            element={
+              <PrivateRoute>
+                <Conversor />
               </PrivateRoute>
             }
           />
