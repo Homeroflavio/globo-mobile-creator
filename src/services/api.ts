@@ -55,15 +55,21 @@ export const fetchUserId = async (): Promise<string | null> => {
 };
 
 /**
- * Mock de autenticação local com integração ao backend
+ * Autenticação real com o backend
  * @param email - E-mail do usuário
  * @param password - Senha do usuário
  * @returns true se autenticado com sucesso
  */
 export const login = async (email: string, password: string): Promise<boolean> => {
-  // Mock simples: admin@globo.com / 123456
-  if (email === 'admin@globo.com' && password === '123456') {
-    try {
+  try {
+    // Configurar header para JSON
+    const response = await axios.post(`${API_BASE_URL}/login`, 
+      { email, password },
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+
+    // Se o login for bem-sucedido, buscar o userId
+    if (response.status === 200 || response.status === 201) {
       const userId = await fetchUserId();
       if (userId) {
         localStorage.setItem('isAuthenticated', 'true');
@@ -71,11 +77,20 @@ export const login = async (email: string, password: string): Promise<boolean> =
         return true;
       }
       return false;
-    } catch (error) {
-      throw error;
     }
+    return false;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 401) {
+        throw new Error('E-mail ou senha inválidos. Tente novamente.');
+      }
+      if (error.code === 'ERR_NETWORK') {
+        throw new Error('Não foi possível conectar ao servidor. Certifique-se de que o backend está rodando em http://localhost:3001');
+      }
+    }
+    console.error('Erro ao fazer login:', error);
+    throw new Error('Falha ao fazer login. Tente novamente.');
   }
-  return false;
 };
 
 /**
